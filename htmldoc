@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive World Map</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+        }
+        .container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+        .map-container {
+            flex: 2;
+            overflow: auto;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .info-panel {
+            flex: 1;
+            padding: 20px;
+            background-color: #ffffff;
+            overflow-y: auto;
+            border-left: 1px solid #ccc;
+        }
+        svg {
+            width: 100%;
+            height: auto;
+        }
+        .country {
+            fill: #cccccc;
+            stroke: #ffffff;
+            stroke-width: 0.5px;
+            transition: fill 0.3s;
+        }
+        .country:hover {
+            fill: #66a3ff;
+            cursor: pointer;
+        }
+        .selected {
+            fill: #3366cc !important;
+        }
+        h1 {
+            margin-top: 0;
+        }
+        #country-info {
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="map-container">
+            <!-- SVG map will be loaded here -->
+            <div id="map">
+                <svg id="world-map" viewBox="0 0 1000 500">
+                    <!-- This is a placeholder. We'll replace it with actual map data -->
+                    <rect x="0" y="0" width="1000" height="500" fill="#e0e0e0" />
+                    <text x="500" y="250" text-anchor="middle">SVG Map Will Load Here</text>
+                </svg>
+            </div>
+        </div>
+        <div class="info-panel">
+            <h1>Country Information</h1>
+            <div id="country-info">
+                <p>Click on a country to view information.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // We'll fetch a simple world map SVG and countries data
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                // Fetch a simplified world map SVG
+                // For a real project, you'd use a complete SVG map with proper country paths
+                const mapResponse = await fetch('bluemap.svg');
+                const mapSvg = await mapResponse.text();
+                document.getElementById('map').innerHTML = mapSvg;
+                
+                // After loading the SVG, add click event listeners to countries
+                const countries = document.querySelectorAll('path[id]');
+                countries.forEach(country => {
+                    country.classList.add('country');
+                    country.addEventListener('click', function() {
+                        // Remove selected class from all countries
+                        document.querySelectorAll('.selected').forEach(el => {
+                            el.classList.remove('selected');
+                        });
+                        
+                        // Add selected class to clicked country
+                        this.classList.add('selected');
+                        
+                        // Get country ID and load information
+                        const countryId = this.id;
+                        loadCountryInfo(countryId);
+                    });
+                });
+            } catch (error) {
+                console.error('Error loading map:', error);
+                document.getElementById('map').innerHTML = '<p>Error loading map. Please try again later.</p>';
+            }
+        });
+
+        async function loadCountryInfo(countryId) {
+            try {
+                // In a real application, you'd fetch the markdown file for the specific country
+                // For this example, we'll just generate some placeholder text
+                const countryName = countryId.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                
+                // Simulate loading a markdown file
+                // In a real project, you'd do: const response = await fetch(`/countries/${countryId}.md`);
+                const infoContainer = document.getElementById('country-info');
+                infoContainer.innerHTML = `
+                    <h2>${countryName}</h2>
+                    <p>Loading information for ${countryName}...</p>
+                `;
+                
+                // Simulate delay of loading data
+                setTimeout(() => {
+                    // This is where you'd normally parse and display the markdown content
+                    infoContainer.innerHTML = `
+                        <h2>${countryName}</h2>
+                        <p><strong>Capital:</strong> Capital City</p>
+                        <p><strong>Population:</strong> 1,234,567</p>
+                        <p><strong>Area:</strong> 123,456 km²</p>
+                        <p><strong>Language:</strong> Official Language</p>
+                        <p><strong>Currency:</strong> National Currency</p>
+                        <h3>About</h3>
+                        <p>This is placeholder information about ${countryName}. In a real application, 
+                        this content would be loaded from a markdown file containing detailed information
+                        about the country.</p>
+                    `;
+                }, 500);
+            } catch (error) {
+                console.error('Error loading country info:', error);
+                document.getElementById('country-info').innerHTML = '<p>Error loading country information. Please try again.</p>';
+            }
+        }
+    </script>
+</body>
+</html>
